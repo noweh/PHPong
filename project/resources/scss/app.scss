@@ -1,0 +1,148 @@
+$white: #B7BABF;
+$violet: #9574A9;
+$brun: #CB8B6B;
+$blue: #4190DF;
+$yellow: #D5B778;
+$dark: #1E1F22;
+
+body {
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  background-color: $dark;
+  font-family: "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+
+.page {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.page-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2;
+}
+
+.white {
+  color: $white;
+}
+
+.violet {
+  color: $violet;
+}
+
+.brun {
+  color: $brun;
+}
+
+.blue {
+  color: $blue;
+}
+
+.yellow {
+  color: $yellow;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.random-text {
+  position: relative;
+  text-align: justify;
+}
+
+.title {
+  top: 5vh;
+  width: 55vh;
+  position: absolute;
+  height: 18vh;
+  left: 0;
+  right: 0;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1E1F22;
+  overflow: hidden;
+  z-index: 2;
+  border: 1px solid $violet;
+  border-radius: 10px;
+}
+
+.preformatted-text {
+  font-size: 1.3vh;
+  text-shadow: 2px 2px 3px rgba(255, 255, 255, 0.7);
+}
+
+.content {
+  position: absolute;
+  top: 30vh;
+  width: 110vh;
+  height: 60vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: $dark;
+  margin: auto;
+  overflow: hidden;
+  z-index: 3;
+  color: $white;
+  font-size: 2vh;
+}
+
+.level {
+  position: absolute;
+  top: 0;
+  left: 10px;
+}
+
+.score {
+  position: absolute;
+  top: 0;
+  right: 10px;
+}
+
+.game {
+  position: relative;
+  width: 110vh;
+  height: 56vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: $white;
+  font-size: 5vh;
+  z-index: 2;
+  backdrop-filter: blur(5px);
+}
+
+.racket {
+  position: absolute;
+  left: 0;
+  span {
+    display: block;
+  }
+}
+
+.ball {
+  position: absolute;
+}
