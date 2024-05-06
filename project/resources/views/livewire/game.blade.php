@@ -30,6 +30,7 @@
     let gameStarted = false;
     let longPressTimeout = 0;
     let longPress = false;
+    let lastTime = null;
 
     document.addEventListener('keyup', event => {
         clearTimeout(longPressTimeout);
@@ -38,8 +39,13 @@
 
     document.addEventListener('keydown', event => {
         if (event.key === ' ') {
-            gameStarted = true;
-            $wire.startGame();
+            if (!gameStarted) {
+                gameStarted = true;
+                $wire.startGame();
+            } else {
+                gameStarted = false;
+                $wire.pauseGame();
+            }
         }
 
         if (gameStarted) {
@@ -64,10 +70,19 @@
         }
     });
 
-    setInterval(() => {
-        if (gameStarted) {
-            $wire.moveBall();
+    function gameLoop(time) {
+        if (lastTime !== null) {
+            let deltaTime = time - lastTime;
+            if (gameStarted && deltaTime >= 100 / $wire.ballSpeed) {
+                $wire.moveBall();
+                lastTime = time;
+            }
+        } else {
+            lastTime = time;
         }
-    }, 100 / $wire.ballSpeed);
+
+        requestAnimationFrame(gameLoop);
+    }
+    requestAnimationFrame(gameLoop);
 </script>
 @endscript

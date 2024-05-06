@@ -25,6 +25,11 @@ class Game extends Component
         $this->gameStarted = true;
     }
 
+    public function pauseGame(): void
+    {
+        $this->gameStarted = false;
+    }
+
     /**
      * Move the racket up or down.
      * Launched by the "keydown" event.
@@ -50,7 +55,7 @@ class Game extends Component
                 break;
         }
 
-        $this->racketPosition = min(48, max(0, $this->racketPosition));
+        $this->racketPosition = min(50, max(0, $this->racketPosition));
     }
 
     /**
@@ -77,9 +82,20 @@ class Game extends Component
     public function moveBall(): void
     {
         $this->updateBallPosition();
-        $this->checkWallCollision();
-        $this->checkRacketCollision();
-        $this->checkRacketSideCollision();
+
+        if ($this->checkWallCollision()) {
+            return;
+        }
+
+        if ($this->checkRacketCollision()) {
+            return;
+        }
+
+        if ($this->checkRacketSideCollision()) {
+            return;
+        }
+
+
     }
 
     /**
@@ -96,52 +112,66 @@ class Game extends Component
     /**
      * Check if the ball collides with the wall.
      *
-     * @return void
+     * @return bool
      */
-    private function checkWallCollision(): void
+    private function checkWallCollision(): bool
     {
         if ($this->ballPosition['x'] >= 106) {
             $this->ballDirection['x'] *= -1;
+            return true;
         }
 
         if ($this->ballPosition['y'] <= 0 ||
             $this->ballPosition['y'] >= 56
         ) {
             $this->ballDirection['y'] *= -1;
+            return true;
         }
+
+        return false;
     }
 
     /**
      * Check if the ball collides with the racket.
      *
-     * @return void
+     * @return bool
      */
-    private function checkRacketCollision(): void
+    private function checkRacketCollision(): bool
     {
         if ($this->ballPosition['x'] === 1 &&
-            $this->ballPosition['y'] >= $this->racketPosition -2 &&
-            $this->ballPosition['y'] <= $this->racketPosition +2
+            $this->ballPosition['y'] >= $this->racketPosition -4 &&
+            $this->ballPosition['y'] <= $this->racketPosition +4
         ) {
+            // If the ball is not in the center of the racket, it will bounce off in the opposite direction.
+            if ($this->ballPosition['y'] !== $this->racketPosition) {
+                $this->ballDirection['y'] *= -1;
+            }
             $this->ballDirection['x'] *= -1;
             $this->dispatch('increase-score');
+            return true;
         }
+
+        return false;
     }
 
     /**
      * Check if the ball collides with the racket side.
      *
-     * @return void
+     * @return bool
      */
-    private function checkRacketSideCollision(): void
+    private function checkRacketSideCollision(): bool
     {
         if ($this->ballPosition['x'] === 0 &&
-            !($this->ballPosition['y'] >= $this->racketPosition -1 &&
-            $this->ballPosition['y'] <= $this->racketPosition +1)
+            $this->ballPosition['y'] >= $this->racketPosition -4 &&
+            $this->ballPosition['y'] <= $this->racketPosition +7
         ) {
             $this->ballDirection['x'] *= -1;
             $this->ballDirection['y'] *= -1;
             $this->dispatch('increase-score');
+            return true;
         }
+
+        return false;
     }
 
     /**

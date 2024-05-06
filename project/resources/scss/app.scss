@@ -98,16 +98,27 @@ body {
   font-size: 2vh;
 }
 
-.level {
+.infos {
   position: absolute;
   top: 0;
-  left: 10px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  background-color: $dark;
+  color: $white;
+  border-bottom: 2px solid $white;
+}
+
+.level {
+  top: 0;
+  margin-right: 10px;
 }
 
 .score {
-  position: absolute;
   top: 0;
-  right: 10px;
+  margin-left: 10px;
 }
 
 .game {
