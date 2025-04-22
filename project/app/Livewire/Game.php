@@ -18,7 +18,7 @@ class Game extends Component
     private const WALL_TOP_Y = 10;
     private const RACKET_COLLISION_X = 10; // Position X de la face avant de la raquette (pixels)
     private const RACKET_SIDE_COLLISION_X = 0; // Position X du bord gauche
-    private const GAME_OVER_X = 0;
+    private const GAME_OVER_X = -self::BALL_SIZE_PX - 20;
     // Racket
     private const RACKET_WIDTH_PX = 10; // Largeur visuelle (pixels)
     private const RACKET_HEIGHT_PX = 80; // Hauteur visuelle (pixels) - Ajuster si besoin
@@ -27,14 +27,15 @@ class Game extends Component
     private const RACKET_MOVE_STEP_FAST = 45; // Pixels par déplacement rapide
     private const RACKET_MIN_Y = self::WALL_TOP_Y;
     private const RACKET_MAX_Y = self::WALL_BOTTOM_Y - self::RACKET_HEIGHT_PX + 35; // Limite basse
+    private const RACKET_Y_COLLISION_TOLERANCE = 5; // Pixels de tolérance en haut/bas
     // Ball
     private const BALL_SIZE_PX = 15; // Diamètre (pixels) - Ajuster si besoin
     private const BALL_INITIAL_X = self::AREA_WIDTH / 2;
     private const BALL_INITIAL_Y = self::AREA_HEIGHT / 2;
-    private const BALL_INITIAL_SPEED = 4; // Vitesse initiale (pixels par tick) - Ajuster
+    private const BALL_INITIAL_SPEED = 6; // Vitesse initiale (pixels par tick) - Ajuster
     private const BALL_INITIAL_DIR_X = 1;
     private const BALL_INITIAL_DIR_Y = 1;
-    private const BALL_SPEED_SQRT_FACTOR = 1.5; // Utiliser un facteur pour une courbe racine carrée
+    private const BALL_SPEED_SQRT_FACTOR = 2; // Utiliser un facteur pour une courbe racine carrée
     // --- End Constants ---
 
     // --- Properties ---
@@ -190,9 +191,9 @@ class Game extends Component
             $this->ballPosition['x'] <= self::RACKET_COLLISION_X + self::RACKET_WIDTH_PX && // Collision zone X
             $this->ballPosition['x'] > self::RACKET_SIDE_COLLISION_X ) { // Eviter conflit avec side collision
 
-            // Check Y position (collision si la balle touche n'importe quelle partie de la raquette)
-            if ($this->ballPosition['y'] >= $this->racketPosition &&
-                $this->ballPosition['y'] <= $this->racketPosition + self::RACKET_HEIGHT_PX
+            // Check Y position avec TOLÉRANCE
+            if ($this->ballPosition['y'] >= $this->racketPosition - self::RACKET_Y_COLLISION_TOLERANCE &&
+                $this->ballPosition['y'] <= $this->racketPosition + self::RACKET_HEIGHT_PX + self::RACKET_Y_COLLISION_TOLERANCE
             ) {
                 // Snap X à la face avant de la raquette
                 $this->ballPosition['x'] = self::RACKET_COLLISION_X; // + self::RACKET_WIDTH_PX ? Non, juste X.
@@ -219,9 +220,9 @@ class Game extends Component
     {
         // Check direction & rough X position
         if ($this->ballDirection['x'] < 0 && $this->ballPosition['x'] <= self::RACKET_SIDE_COLLISION_X) {
-            // Check Y position
-            if ($this->ballPosition['y'] >= $this->racketPosition &&
-                $this->ballPosition['y'] <= $this->racketPosition + self::RACKET_HEIGHT_PX
+            // Check Y position avec TOLÉRANCE
+            if ($this->ballPosition['y'] >= $this->racketPosition - self::RACKET_Y_COLLISION_TOLERANCE &&
+                $this->ballPosition['y'] <= $this->racketPosition + self::RACKET_HEIGHT_PX + self::RACKET_Y_COLLISION_TOLERANCE
             ) {
                 $this->ballPosition['x'] = self::RACKET_SIDE_COLLISION_X; // Snap X
                 // Rebond différent pour le côté?

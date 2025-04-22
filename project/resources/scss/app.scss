@@ -139,7 +139,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: $dark;
     color: $white;
     font-size: 5vh;
     z-index: 2;
@@ -155,7 +155,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: $dark;
     color: $white;
     font-size: 5vh;
     z-index: 2;
