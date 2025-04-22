@@ -41,7 +41,7 @@ class Game extends Component
 
     // --- Properties ---
     public bool $gameStarted = false;
-    public bool $isGameOver = false; // << NOUVELLE PROPRIÉTÉ
+    public bool $isGameOver = false;
     public int $racketPosition = self::RACKET_INITIAL_Y;
     public array $ballPosition = ['x' => self::BALL_INITIAL_X, 'y' => self::BALL_INITIAL_Y];
     public array $ballDirection = ['x' => self::BALL_INITIAL_DIR_X, 'y' => self::BALL_INITIAL_DIR_Y];
@@ -49,22 +49,34 @@ class Game extends Component
     public int $ballSpeed = self::BALL_INITIAL_SPEED;
 
     /**
-     * Start the game.
-     * Launched by the "keydown" event.
-     *
-     * @return void
+     * Start or restart the game.
      */
     public function startGame(): void
     {
         $this->gameStarted = true;
-        $this->isGameOver = false; // << RÉINITIALISER GAME OVER
-        // Optional: Reset ball position/direction if needed
-        // $this->resetBall();
+        $this->isGameOver = false;
 
-        // Informer Score de réinitialiser son affichage et son score
+        // Réinitialiser l'état complet du jeu
+        $this->racketPosition = self::RACKET_INITIAL_Y;
+        $this->ballPosition = ['x' => self::BALL_INITIAL_X, 'y' => self::BALL_INITIAL_Y];
+        // Optionnel: Rendre la direction Y initiale aléatoire
+        $this->ballDirection = ['x' => self::BALL_INITIAL_DIR_X, 'y' => (rand(0, 1) ? 1 : -1) * self::BALL_INITIAL_DIR_Y];
+        $this->ballSpeed = self::BALL_INITIAL_SPEED;
+
+        // Informer Score et Level de réinitialiser
         $this->dispatch('reset-score-display')->to(Score::class);
-        // Informer Level de réinitialiser son niveau
         $this->dispatch('reset-level')->to(Level::class);
+    }
+
+    /**
+     * Resume the game from pause.
+     */
+    public function resumeGame(): void
+    {
+        // Only resume if not game over and not already started
+        if (!$this->isGameOver && !$this->gameStarted) {
+            $this->gameStarted = true;
+        }
     }
 
     public function pauseGame(): void
@@ -154,7 +166,7 @@ class Game extends Component
         // Check for Game Over AFTER checking bounces
         if ($this->checkGameOver()) {
             $this->gameStarted = false; // Stop the game
-            $this->isGameOver = true; // << MARQUER COMME GAME OVER
+            $this->isGameOver = true;
             // Informer Score d'afficher le message final
             $this->dispatch('show-final-score')->to(Score::class);
             return; // Stop further checks this tick

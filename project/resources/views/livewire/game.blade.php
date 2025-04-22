@@ -8,7 +8,7 @@
 
         @if ($isGameOver)
             <div class="overlay-game-over">
-                <p>Press Space to Retry</p>
+                <p>Press "R" to Retry</p>
             </div>
         @endif
 
@@ -37,7 +37,7 @@
 
 @script
 <script>
-    let gameStarted = false;
+    let gameStarted = {{ $gameStarted ? 'true' : 'false' }};
     let longPressTimeout = 0;
     let longPress = false;
     let lastTime = null;
@@ -48,10 +48,20 @@
     });
 
     document.addEventListener('keydown', event => {
+        if ((event.key === 'r' || event.key === 'R') && !event.ctrlKey && !event.metaKey) {
+            event.preventDefault();
+            console.log('R key pressed (without Ctrl/Meta) -> calling startGame()');
+            gameStarted = true;
+            $wire.startGame();
+            return;
+        }
+
         if (event.key === ' ') {
+            event.preventDefault();
+
             if (!gameStarted) {
                 gameStarted = true;
-                $wire.startGame();
+                $wire.resumeGame();
             } else {
                 gameStarted = false;
                 $wire.pauseGame();
@@ -95,15 +105,5 @@
         requestAnimationFrame(gameLoop);
     }
     requestAnimationFrame(gameLoop);
-
-    Livewire.hook('element.updated', (el, component) => {
-        if (component.fingerprint.name === 'game') {
-            const backendState = component.snapshot.data.gameStarted;
-            if (gameStarted !== backendState) {
-                console.log(`Syncing JS gameStarted from backend: ${backendState}`);
-                gameStarted = backendState;
-            }
-        }
-    });
 </script>
 @endscript
