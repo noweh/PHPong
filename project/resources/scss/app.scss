@@ -86,7 +86,7 @@ body {
     position: absolute;
     top: 30vh;
     width: 110vh;
-    height: 60vh;
+    height: 48vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -124,7 +124,7 @@ body {
 .game {
     position: relative;
     width: 110vh;
-    height: 56vh;
+    height: 46vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -132,7 +132,7 @@ body {
 
 .overlay {
     position: absolute;
-    top: 0;
+    top: 5%;
     left: 0;
     width: 100%;
     height: 100%;
@@ -148,10 +148,10 @@ body {
 
 .overlay-game-over {
     position: absolute;
-    top: 8%;
+    top: 11%;
     left: 0;
     width: 100%;
-    height: 90%;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;

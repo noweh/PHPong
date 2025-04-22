@@ -12,7 +12,7 @@ class Game extends Component
     // --- Constants (PIXEL-BASED for 800x500 area) ---
     // Boundaries
     private const AREA_WIDTH = 800;
-    private const AREA_HEIGHT = 500;
+    private const AREA_HEIGHT = 400;
     private const WALL_RIGHT_X = self::AREA_WIDTH + 50;
     private const WALL_BOTTOM_Y = self::AREA_HEIGHT - 40;
     private const WALL_TOP_Y = 10;
@@ -23,10 +23,10 @@ class Game extends Component
     private const RACKET_WIDTH_PX = 10; // Largeur visuelle (pixels)
     private const RACKET_HEIGHT_PX = 80; // Hauteur visuelle (pixels) - Ajuster si besoin
     private const RACKET_INITIAL_Y = (self::AREA_HEIGHT / 2) - (self::RACKET_HEIGHT_PX / 2); // Centré verticalement
-    private const RACKET_MOVE_STEP = 7; // Pixels par déplacement
-    private const RACKET_MOVE_STEP_FAST = 21; // Pixels par déplacement rapide
+    private const RACKET_MOVE_STEP = 15; // Pixels par déplacement
+    private const RACKET_MOVE_STEP_FAST = 45; // Pixels par déplacement rapide
     private const RACKET_MIN_Y = self::WALL_TOP_Y + 10;
-    private const RACKET_MAX_Y = self::WALL_BOTTOM_Y - self::RACKET_HEIGHT_PX + 20; // Limite basse
+    private const RACKET_MAX_Y = self::WALL_BOTTOM_Y - self::RACKET_HEIGHT_PX + 30; // Limite basse
     // Ball
     private const BALL_SIZE_PX = 15; // Diamètre (pixels) - Ajuster si besoin
     private const BALL_INITIAL_X = self::AREA_WIDTH / 2;
