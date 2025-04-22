@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Livewire\Score; // Importer Score
+use App\Livewire\Level; // Importer Level
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -60,8 +61,10 @@ class Game extends Component
         // Optional: Reset ball position/direction if needed
         // $this->resetBall();
 
-        // Informer Score que le jeu (re)commence pour masquer "GAME OVER"
+        // Informer Score de réinitialiser son affichage et son score
         $this->dispatch('reset-score-display')->to(Score::class);
+        // Informer Level de réinitialiser son niveau
+        $this->dispatch('reset-level')->to(Level::class);
     }
 
     public function pauseGame(): void

@@ -1,5 +1,4 @@
 <div>
-
     <div class="game">
         @if (!$gameStarted && !$isGameOver)
             <div class="overlay">
@@ -7,14 +6,22 @@
             </div>
         @endif
 
-        <div
-            class="racket bold"
-            style="top: {{ $racketPosition }}vh;"
-        >
-            <span>||</span>
-            <span>||</span>
-            <span>||</span>
-        </div>
+        @if ($isGameOver)
+            <div class="overlay-game-over">
+                <p>Press Space to Retry</p>
+            </div>
+        @endif
+
+        @if (!$isGameOver)
+            <div
+                class="racket bold"
+                style="top: {{ $racketPosition }}vh;"
+            >
+                <span>||</span>
+                <span>||</span>
+                <span>||</span>
+            </div>
+        @endif
         @if ($gameStarted || !$isGameOver)
             <div
                 class="ball bold"

@@ -23,10 +23,8 @@ class Score extends Component
     public function increaseScore(): void
     {
         if ($this->showFinalMessage) {
-            Log::debug('[Score::increaseScore] Blocked by showFinalMessage = true');
             return;
         }
-        Log::debug('[Score::increaseScore] Incrementing score.');
         $this->score += self::SCORE_INCREMENT;
         $this->dispatch('check-level', score: $this->score)->to(Level::class);
     }
@@ -49,10 +47,7 @@ class Score extends Component
     {
         Log::debug('[Score::resetDisplay] Setting showFinalMessage = false');
         $this->showFinalMessage = false;
-        // Optionnel : Réinitialiser le score ici aussi ?
-        // Pour l'instant, on garde le score visible jusqu'au prochain point marqué.
-        // Si on veut reset à 0 dès le début du nouveau jeu, décommenter :
-        // $this->score = 0;
+        $this->score = 0;
     }
 
     /**
