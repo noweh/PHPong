@@ -23,10 +23,10 @@ class Game extends Component
     private const RACKET_WIDTH_PX = 10; // Largeur visuelle (pixels)
     private const RACKET_HEIGHT_PX = 80; // Hauteur visuelle (pixels) - Ajuster si besoin
     private const RACKET_INITIAL_Y = (self::AREA_HEIGHT / 2) - (self::RACKET_HEIGHT_PX / 2); // Centré verticalement
-    private const RACKET_MOVE_STEP = 15; // Pixels par déplacement
-    private const RACKET_MOVE_STEP_FAST = 45; // Pixels par déplacement rapide
+    private const RACKET_MOVE_STEP = 7; // Pixels par déplacement
+    private const RACKET_MOVE_STEP_FAST = 21; // Pixels par déplacement rapide
     private const RACKET_MIN_Y = self::WALL_TOP_Y + 10;
-    private const RACKET_MAX_Y = self::WALL_BOTTOM_Y - self::RACKET_HEIGHT_PX - 20; // Limite basse
+    private const RACKET_MAX_Y = self::WALL_BOTTOM_Y - self::RACKET_HEIGHT_PX + 20; // Limite basse
     // Ball
     private const BALL_SIZE_PX = 15; // Diamètre (pixels) - Ajuster si besoin
     private const BALL_INITIAL_X = self::AREA_WIDTH / 2;
@@ -34,7 +34,7 @@ class Game extends Component
     private const BALL_INITIAL_SPEED = 4; // Vitesse initiale (pixels par tick) - Ajuster
     private const BALL_INITIAL_DIR_X = 1;
     private const BALL_INITIAL_DIR_Y = 1;
-    private const BALL_SPEED_LEVEL_FACTOR = 2.5; // Augmentation de vitesse par niveau (pixels) - Ajuster
+    private const BALL_SPEED_SQRT_FACTOR = 3.5; // Utiliser un facteur pour une courbe racine carrée
     // --- End Constants ---
 
     // --- Properties ---
@@ -108,8 +108,10 @@ class Game extends Component
     #[On('increase-ball-speed')]
     public function increaseBallSpeed($level): void
     {
-        // Augmentation linéaire simple pour l'exemple
-        $this->ballSpeed = self::BALL_INITIAL_SPEED + ($level * self::BALL_SPEED_LEVEL_FACTOR);
+        // S'assurer que le niveau est au moins 1 pour éviter sqrt(0) ou négatif
+        $effectiveLevel = max(1, $level);
+        // Nouvelle formule utilisant la racine carrée
+        $this->ballSpeed = self::BALL_INITIAL_SPEED + (self::BALL_SPEED_SQRT_FACTOR * sqrt($effectiveLevel));
     }
 
     /**

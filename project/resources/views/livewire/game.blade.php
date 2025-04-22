@@ -1,5 +1,23 @@
 <div>
-    {{-- Game area container (Doit avoir position:relative via CSS externe) --}}
+    {{-- Ajout d'un style pour les transitions --}}
+    <style>
+        .racket {
+            /* Garder les styles existants (via CSS externe ou ici) */
+            /* Ajouter la transition pour la propriété 'top' */
+            transition: top 0.05s linear; /* Durée courte, animation linéaire */
+        }
+        .ball {
+            /* Garder les styles existants */
+            /* Ajouter la transition pour 'left' et 'top' */
+            transition: left 0.05s linear, top 0.05s linear;
+        }
+        /* Garder les styles des overlays etc. s'ils étaient ici, 
+           sinon s'assurer qu'ils sont dans le CSS externe */
+        .game { position: relative; /* Important pour le positionnement absolu */ }
+        .overlay, .overlay-game-over { position: absolute; /* ... autres styles overlay ... */ }
+    </style>
+
+    {{-- Game area container (Doit avoir position:relative via CSS externe ou style ci-dessus) --}}
     <div class="game">
         {{-- Overlay initial --}}
         @if (!$gameStarted && !$isGameOver)
@@ -78,7 +96,7 @@
                 longPressTimeout = setTimeout(() => {
                     longPress = true;
                     $wire.dispatch('move-racket', {'direction': 'up-fast'})
-                }, 200);
+                }, 150);
                 if (!longPress) {
                     $wire.dispatch('move-racket', {'direction': 'up'})
                 }
@@ -87,7 +105,7 @@
                 longPressTimeout = setTimeout(() => {
                     longPress = true;
                     $wire.dispatch('move-racket', {'direction': 'down-fast'})
-                }, 200);
+                }, 150);
                 if (!longPress) {
                     $wire.dispatch('move-racket', {'direction': 'down'})
                 }
@@ -98,8 +116,8 @@
     function gameLoop(time) {
         if (lastTime !== null) {
             let deltaTime = time - lastTime;
-            const speed = $wire.ballSpeed || 1;
-            if (gameStarted && deltaTime >= 100 / speed) {
+            const UPDATE_INTERVAL_MS = 33;
+            if (gameStarted && deltaTime >= UPDATE_INTERVAL_MS) {
                 $wire.moveBall();
                 lastTime = time;
             }
