@@ -13,8 +13,8 @@ class Game extends Component
     // Boundaries
     private const AREA_WIDTH = 800;
     private const AREA_HEIGHT = 400;
-    private const WALL_RIGHT_X = self::AREA_WIDTH + 50;
-    private const WALL_BOTTOM_Y = self::AREA_HEIGHT - 40;
+    private const WALL_RIGHT_X = self::AREA_WIDTH + 55;
+    private const WALL_BOTTOM_Y = self::AREA_HEIGHT - 30;
     private const WALL_TOP_Y = 10;
     private const RACKET_COLLISION_X = 10; // Position X de la face avant de la raquette (pixels)
     private const RACKET_SIDE_COLLISION_X = 0; // Position X du bord gauche
@@ -25,8 +25,8 @@ class Game extends Component
     private const RACKET_INITIAL_Y = (self::AREA_HEIGHT / 2) - (self::RACKET_HEIGHT_PX / 2); // Centré verticalement
     private const RACKET_MOVE_STEP = 15; // Pixels par déplacement
     private const RACKET_MOVE_STEP_FAST = 45; // Pixels par déplacement rapide
-    private const RACKET_MIN_Y = self::WALL_TOP_Y + 10;
-    private const RACKET_MAX_Y = self::WALL_BOTTOM_Y - self::RACKET_HEIGHT_PX + 30; // Limite basse
+    private const RACKET_MIN_Y = self::WALL_TOP_Y;
+    private const RACKET_MAX_Y = self::WALL_BOTTOM_Y - self::RACKET_HEIGHT_PX + 35; // Limite basse
     // Ball
     private const BALL_SIZE_PX = 15; // Diamètre (pixels) - Ajuster si besoin
     private const BALL_INITIAL_X = self::AREA_WIDTH / 2;
@@ -124,7 +124,7 @@ class Game extends Component
     {
         if (!$this->gameStarted) return;
         $this->updateBallPosition();
-        if ($this->checkWallCollision()) { /* Peut continuer */ }
+        if ($this->checkWallCollision()) { }
         if ($this->checkRacketCollision()) { return; }
         if ($this->checkRacketSideCollision()) { return; }
         if ($this->checkGameOver()) {
@@ -142,10 +142,8 @@ class Game extends Component
      */
     private function updateBallPosition(): void
     {
-        // Prend en compte la taille de la balle pour les collisions? Non, on suppose point pour l'instant.
         $this->ballPosition['x'] += $this->ballDirection['x'] * $this->ballSpeed;
         $this->ballPosition['y'] += $this->ballDirection['y'] * $this->ballSpeed;
-        // Pas besoin de clamp ici si les collisions sont bien gérées
     }
 
     /**
@@ -244,6 +242,19 @@ class Game extends Component
     private function checkGameOver(): bool
     {
         return $this->ballPosition['x'] < self::GAME_OVER_X;
+    }
+
+    /**
+     * Sets the racket position directly (e.g., from mouse input).
+     * Ensures the position stays within bounds.
+     */
+    public function setRacketPosition(float $y): void
+    {
+        // Only update if game is running and not over
+        if ($this->gameStarted && !$this->isGameOver) {
+            // Validate and clamp the received Y position
+            $this->racketPosition = min(self::RACKET_MAX_Y, max(self::RACKET_MIN_Y, $y));
+        }
     }
 
     /**

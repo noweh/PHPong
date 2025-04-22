@@ -65,6 +65,16 @@
     let longPress = false;
     let lastTime = null;
 
+    // Constantes JS basées sur les valeurs PHP (ajuster si PHP change!)
+    const RACKET_HEIGHT_PX = 80;
+    // RACKET_MIN_Y = WALL_TOP_Y(10) + 10 = 20
+    const RACKET_MIN_Y = 20; 
+    // RACKET_MAX_Y = WALL_BOTTOM_Y(460) - RACKET_HEIGHT_PX(80) + 30 = 410
+    const RACKET_MAX_Y = 410; 
+
+    // Référence à la zone de jeu
+    const gameArea = document.querySelector('.game');
+
     document.addEventListener('keyup', event => {
         clearTimeout(longPressTimeout);
         longPress = false;
@@ -112,6 +122,32 @@
             }
         }
     });
+
+    // --- Contrôle Souris --- 
+    if (gameArea) {
+        gameArea.addEventListener('mousemove', (event) => {
+            // Ne contrôler à la souris que si le jeu est démarré
+            if (!gameStarted) return;
+
+            // Calculer Y souris relatif au conteneur .game
+            const rect = gameArea.getBoundingClientRect();
+            const mouseY = event.clientY - rect.top;
+
+            // Calculer la position top désirée pour centrer la raquette sur la souris
+            let desiredTop = mouseY - (RACKET_HEIGHT_PX / 2);
+
+            // Clamper la position dans les limites autorisées
+            const clampedTop = Math.min(RACKET_MAX_Y, Math.max(RACKET_MIN_Y, desiredTop));
+
+            // Envoyer la position validée au backend
+            // Utiliser requestAnimationFrame pour limiter la fréquence des appels?
+            // Pour l'instant, appel direct pour max réactivité.
+            $wire.setRacketPosition(clampedTop);
+        });
+
+        // Optionnel: Cacher la souris quand elle entre dans la zone de jeu
+        // gameArea.style.cursor = 'none'; 
+    }
 
     function gameLoop(time) {
         if (lastTime !== null) {
