@@ -1,34 +1,39 @@
 <div>
+    {{-- Game area container (Doit avoir position:relative via CSS externe) --}}
     <div class="game">
+        {{-- Overlay initial --}}
         @if (!$gameStarted && !$isGameOver)
             <div class="overlay">
                 <p>Press Space to Play/Pause</p>
             </div>
         @endif
 
+        {{-- Overlay GAME OVER --}}
         @if ($isGameOver)
             <div class="overlay-game-over">
                 <p>Press "R" to Retry</p>
             </div>
         @endif
 
+        {{-- Racket (position top en pixels) --}}
         @if (!$isGameOver)
             <div
-                class="racket bold"
-                style="top: {{ $racketPosition }}vh;"
+                class="racket"
+                style="top: {{ $racketPosition }}px;"
             >
+                {{-- Remettre les spans --}}
                 <span>||</span>
                 <span>||</span>
                 <span>||</span>
             </div>
         @endif
+        {{-- Ball (position left/top en pixels) --}}
         @if ($gameStarted || !$isGameOver)
             <div
-                class="ball bold"
-                style=
-                    "left: {{ $ballPosition['x'] }}vh;
-                    top: {{ $ballPosition['y'] }}vh;"
+                class="ball"
+                style="left: {{ $ballPosition['x'] }}px; top: {{ $ballPosition['y'] }}px;"
             >
+                {{-- Remettre le span --}}
                 <span>(&&)</span>
             </div>
         @endif
