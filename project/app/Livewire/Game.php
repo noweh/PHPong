@@ -34,7 +34,7 @@ class Game extends Component
     private const BALL_INITIAL_SPEED = 4; // Vitesse initiale (pixels par tick) - Ajuster
     private const BALL_INITIAL_DIR_X = 1;
     private const BALL_INITIAL_DIR_Y = 1;
-    private const BALL_SPEED_SQRT_FACTOR = 3.5; // Utiliser un facteur pour une courbe racine carrée
+    private const BALL_SPEED_SQRT_FACTOR = 1.5; // Utiliser un facteur pour une courbe racine carrée
     // --- End Constants ---
 
     // --- Properties ---
