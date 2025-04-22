@@ -1,11 +1,12 @@
 <div>
-    @if (!$gameStarted)
-        <div class="overlay">
-            <p>Press Space button to play</p>
-        </div>
-    @endif
 
     <div class="game">
+        @if (!$gameStarted && !$isGameOver)
+            <div class="overlay">
+                <p>Press Space to Play/Pause</p>
+            </div>
+        @endif
+
         <div
             class="racket bold"
             style="top: {{ $racketPosition }}vh;"
@@ -14,14 +15,16 @@
             <span>||</span>
             <span>||</span>
         </div>
-        <div
-            class="ball bold"
-            style=
-                "left: {{ $ballPosition['x'] }}vh;
-                top: {{ $ballPosition['y'] }}vh;"
-        >
-            <span>(&&)</span>
-        </div>
+        @if ($gameStarted || !$isGameOver)
+            <div
+                class="ball bold"
+                style=
+                    "left: {{ $ballPosition['x'] }}vh;
+                    top: {{ $ballPosition['y'] }}vh;"
+            >
+                <span>(&&)</span>
+            </div>
+        @endif
     </div>
 </div>
 
@@ -73,7 +76,8 @@
     function gameLoop(time) {
         if (lastTime !== null) {
             let deltaTime = time - lastTime;
-            if (gameStarted && deltaTime >= 100 / $wire.ballSpeed) {
+            const speed = $wire.ballSpeed || 1;
+            if (gameStarted && deltaTime >= 100 / speed) {
                 $wire.moveBall();
                 lastTime = time;
             }
@@ -84,5 +88,15 @@
         requestAnimationFrame(gameLoop);
     }
     requestAnimationFrame(gameLoop);
+
+    Livewire.hook('element.updated', (el, component) => {
+        if (component.fingerprint.name === 'game') {
+            const backendState = component.snapshot.data.gameStarted;
+            if (gameStarted !== backendState) {
+                console.log(`Syncing JS gameStarted from backend: ${backendState}`);
+                gameStarted = backendState;
+            }
+        }
+    });
 </script>
 @endscript

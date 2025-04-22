@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Score; // Importer Score
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -32,9 +33,14 @@ class Game extends Component
     private const BALL_INITIAL_DIR_X = 1;
     private const BALL_INITIAL_DIR_Y = 1;
     private const BALL_SPEED_LEVEL_FACTOR = 10;
+
+    // Game State
+    private const GAME_OVER_X = 0; // Ball passes this X coordinate = Game Over
     // --- End Constants ---
 
+    // --- Properties ---
     public bool $gameStarted = false;
+    public bool $isGameOver = false; // << NOUVELLE PROPRIÉTÉ
     public int $racketPosition = self::RACKET_INITIAL_Y;
     public array $ballPosition = ['x' => self::BALL_INITIAL_X, 'y' => self::BALL_INITIAL_Y];
     public array $ballDirection = ['x' => self::BALL_INITIAL_DIR_X, 'y' => self::BALL_INITIAL_DIR_Y];
@@ -50,11 +56,21 @@ class Game extends Component
     public function startGame(): void
     {
         $this->gameStarted = true;
+        $this->isGameOver = false; // << RÉINITIALISER GAME OVER
+        // Optional: Reset ball position/direction if needed
+        // $this->resetBall();
+
+        // Informer Score que le jeu (re)commence pour masquer "GAME OVER"
+        $this->dispatch('reset-score-display')->to(Score::class);
     }
 
     public function pauseGame(): void
     {
-        $this->gameStarted = false;
+        // Only allow pausing if game is running and not over
+        if ($this->gameStarted && !$this->isGameOver) {
+            $this->gameStarted = false;
+        }
+        // Do nothing if game is already paused, starting, or game over
     }
 
     /**
@@ -108,21 +124,38 @@ class Game extends Component
      */
     public function moveBall(): void
     {
+        // Only move if game is running
+        if (!$this->gameStarted) {
+            return;
+        }
+
         $this->updateBallPosition();
 
+        // Check for wall bounces first (top, bottom, right)
         if ($this->checkWallCollision()) {
-            return;
+            // Wall bounce handled, continue next tick potentially
+            // We might return here IF we don't want other checks this tick,
+            // but let's allow other checks for now.
         }
 
+        // Check for racket collision (front face)
         if ($this->checkRacketCollision()) {
-            return;
+            return; // Stop further checks this tick after successful bounce
         }
 
+        // Check for racket side collision (left edge)
         if ($this->checkRacketSideCollision()) {
-            return;
+            return; // Stop further checks this tick after successful bounce
         }
 
-
+        // Check for Game Over AFTER checking bounces
+        if ($this->checkGameOver()) {
+            $this->gameStarted = false; // Stop the game
+            $this->isGameOver = true; // << MARQUER COMME GAME OVER
+            // Informer Score d'afficher le message final
+            $this->dispatch('show-final-score')->to(Score::class);
+            return; // Stop further checks this tick
+        }
     }
 
     /**
@@ -160,22 +193,30 @@ class Game extends Component
 
     /**
      * Check if the ball collides with the racket.
+     * Uses <= comparison for X to handle potential overshooting due to speed.
      *
      * @return bool
      */
     private function checkRacketCollision(): bool
     {
-        if ($this->ballPosition['x'] === self::RACKET_COLLISION_X &&
-            $this->ballPosition['y'] >= $this->racketPosition + self::RACKET_COLLISION_MARGIN_TOP && // Note: Using + because margin is negative
-            $this->ballPosition['y'] <= $this->racketPosition + self::RACKET_COLLISION_MARGIN_BOTTOM
-        ) {
-            // If the ball is not in the center of the racket, it will bounce off in the opposite direction.
-            if ($this->ballPosition['y'] !== $this->racketPosition) {
-                $this->ballDirection['y'] *= -1;
+        // Check if ball is roughly at the racket's X position and moving left
+        if ($this->ballDirection['x'] < 0 && $this->ballPosition['x'] <= self::RACKET_COLLISION_X) {
+
+            // Check Y position against racket margins
+            if ($this->ballPosition['y'] >= $this->racketPosition + self::RACKET_COLLISION_MARGIN_TOP &&
+                $this->ballPosition['y'] <= $this->racketPosition + self::RACKET_COLLISION_MARGIN_BOTTOM
+            ) {
+                // Prevent sticking or multiple collisions: snap X position slightly outside
+                $this->ballPosition['x'] = self::RACKET_COLLISION_X + abs($this->ballDirection['x'] * $this->ballSpeed * 0.1); // Small offset
+
+                // If the ball is not in the center of the racket, it will bounce off in the opposite direction.
+                if ($this->ballPosition['y'] !== $this->racketPosition) {
+                    $this->ballDirection['y'] *= -1;
+                }
+                $this->ballDirection['x'] *= -1; // Reverse X direction
+                $this->dispatch('increase-score');
+                return true;
             }
-            $this->ballDirection['x'] *= -1;
-            $this->dispatch('increase-score');
-            return true;
         }
 
         return false;
@@ -183,22 +224,39 @@ class Game extends Component
 
     /**
      * Check if the ball collides with the racket side.
+     * Uses <= comparison for X to handle potential overshooting due to speed.
      *
      * @return bool
      */
     private function checkRacketSideCollision(): bool
     {
-        if ($this->ballPosition['x'] === self::RACKET_SIDE_COLLISION_X &&
-            $this->ballPosition['y'] >= $this->racketPosition + self::RACKET_COLLISION_MARGIN_TOP && // Re-using same top margin?
-            $this->ballPosition['y'] <= $this->racketPosition + self::RACKET_SIDE_COLLISION_MARGIN_BOTTOM
-        ) {
-            $this->ballDirection['x'] *= -1;
-            $this->ballDirection['y'] *= -1;
-            $this->dispatch('increase-score');
-            return true;
+        // Check if ball is roughly at the racket side's X position and moving left
+        if ($this->ballDirection['x'] < 0 && $this->ballPosition['x'] <= self::RACKET_SIDE_COLLISION_X) {
+            // Check Y position against racket side margins
+            if ($this->ballPosition['y'] >= $this->racketPosition + self::RACKET_COLLISION_MARGIN_TOP && // Re-using same top margin?
+                $this->ballPosition['y'] <= $this->racketPosition + self::RACKET_SIDE_COLLISION_MARGIN_BOTTOM
+            ) {
+                 // Prevent sticking or multiple collisions: snap X position slightly outside
+                $this->ballPosition['x'] = self::RACKET_SIDE_COLLISION_X + abs($this->ballDirection['x'] * $this->ballSpeed * 0.1); // Small offset
+
+                $this->ballDirection['x'] *= -1;
+                $this->ballDirection['y'] *= -1;
+                $this->dispatch('increase-score');
+                return true;
+            }
         }
 
         return false;
+    }
+
+    /**
+     * Check if the ball has passed the left boundary (Game Over).
+     *
+     * @return bool
+     */
+    private function checkGameOver(): bool
+    {
+        return $this->ballPosition['x'] < self::GAME_OVER_X;
     }
 
     /**
