@@ -7,6 +7,8 @@ use Livewire\Component;
 
 class Score extends Component
 {
+    private const SCORE_INCREMENT = 10;
+
     public int $score = 0;
 
     /**
@@ -18,7 +20,7 @@ class Score extends Component
     #[On('increase-score')]
     public function increaseScore(): void
     {
-        $this->score += 10;
+        $this->score += self::SCORE_INCREMENT;
         $this->dispatch('check-level', score: $this->score)->to(Level::class);
     }
 
