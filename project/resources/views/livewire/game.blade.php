@@ -1,36 +1,36 @@
 <div>
-    {{-- Ajout d'un style pour les transitions --}}
+    {{-- Adding style for transitions --}}
     <style>
         .racket {
-            transition: top 0.05s linear; /* RE-ACTIVÉ */
+            transition: top 0.05s linear; /* RE-ENABLED */
         }
         .ball {
-            transition: left 0.05s linear, top 0.05s linear; /* RE-ACTIVÉ */
+            transition: left 0.05s linear, top 0.05s linear; /* RE-ENABLED */
         }
-        .game { position: relative; /* Important pour le positionnement absolu */ }
-        .overlay, .overlay-game-over { position: absolute; /* ... autres styles overlay ... */ }
+        .game { position: relative; /* Important for absolute positioning */ }
+        .overlay, .overlay-game-over { position: absolute; /* ... other overlay styles ... */ }
 
-        /* --- Animations "Juice" (Originales avec Alpine) --- */
+        /* --- "Juice" Animations (Originals with Alpine) --- */
         .ball-squash {
-            animation: squash 0.2s ease-out; /* Utilise @keyframes squash */
+            animation: squash 0.2s ease-out; /* Uses @keyframes squash */
         }
         .racket-flash {
-            animation: flash 0.2s linear;  /* Utilise @keyframes flash - Durée augmentée */
+            animation: flash 0.2s linear;  /* Uses @keyframes flash - Duration increased */
         }
 
-        /* Keyframes originaux (modifiés pour plus d'impact) */
+        /* Original keyframes (modified for more impact) */
         @keyframes squash {
             0%, 100% { transform: scale(1, 1); }
-            50% { transform: scale(1.6, 0.4); } /* << PLUS EXAGÉRÉ */
+            50% { transform: scale(1.6, 0.4); } /* << MORE EXAGGERATED */
         }
         @keyframes flash {
             0%, 100% { filter: brightness(1); }
-            50% { filter: brightness(2.5); } /* << PLUS LUMINEUX */
+            50% { filter: brightness(2.5); } /* << BRIGHTER */
         }
-        /* @keyframes simple-opacity { ... } */ /* Supprimé car inutile */
+        /* @keyframes simple-opacity { ... } */ /* Removed as unnecessary */
     </style>
 
-    {{-- Conteneur principal avec Alpine --}}
+    {{-- Main container with Alpine --}}
     <div 
         x-data="{
             isBallSquashing: false, 
@@ -39,43 +39,43 @@
         @trigger-ball-squash.window="isBallSquashing = true; setTimeout(() => isBallSquashing = false, 500)"
         @trigger-racket-flash.window="isRacketFlashing = true; setTimeout(() => isRacketFlashing = false, 500)"
     >
-        {{-- Game area container (Doit avoir position:relative via CSS externe ou style ci-dessus) --}}
+        {{-- Game area container (Must have position:relative via external CSS or style above) --}}
         <div class="game">
-            {{-- Overlay initial --}}
+            {{-- Initial overlay --}}
             @if (!$gameStarted && !$isGameOver)
                 <div class="overlay">
                     <p>Press Space to Play/Pause</p>
                 </div>
             @endif
 
-            {{-- Overlay GAME OVER --}}
+            {{-- GAME OVER overlay --}}
             @if ($isGameOver)
                 <div class="overlay-game-over">
                     <p>Press "R" to Retry</p>
                 </div>
             @endif
 
-            {{-- Racket (position top en pixels) --}}
+            {{-- Racket (top position in pixels) --}}
             @if (!$isGameOver)
                 <div
                     class="racket"
-                    :class="{ 'racket-flash': isRacketFlashing }" {{-- Alpine gère la classe --}}
+                    :class="{ 'racket-flash': isRacketFlashing }" {{-- Alpine handles the class --}}
                     style="top: {{ $racketPosition }}px;"
                 >
-                    {{-- Remettre les spans --}}
+                    {{-- Restore the spans --}}
                     <span>||</span>
                     <span>||</span>
                     <span>||</span>
                 </div>
             @endif
-            {{-- Ball (position left/top en pixels) --}}
+            {{-- Ball (left/top position in pixels) --}}
             @if ($gameStarted || !$isGameOver)
                 <div
                     class="ball"
-                    :class="{ 'ball-squash': isBallSquashing }" {{-- Alpine gère la classe --}}
+                    :class="{ 'ball-squash': isBallSquashing }" {{-- Alpine handles the class --}}
                     style="left: {{ $ballPosition['x'] }}px; top: {{ $ballPosition['y'] }}px;"
                 >
-                    {{-- Remettre le span --}}
+                    {{-- Restore the span --}}
                     <span>(&&)</span>
                 </div>
             @endif
@@ -90,14 +90,14 @@
     let longPress = false;
     let lastTime = null;
 
-    // Constantes JS basées sur les valeurs PHP (ajuster si PHP change!)
+    // JS constants based on PHP values (adjust if PHP changes!)
     const RACKET_HEIGHT_PX = 80;
     // RACKET_MIN_Y = WALL_TOP_Y(10) + 10 = 20
     const RACKET_MIN_Y = 20; 
     // RACKET_MAX_Y = WALL_BOTTOM_Y(460) - RACKET_HEIGHT_PX(80) + 30 = 410
     const RACKET_MAX_Y = 410; 
 
-    // Référence à la zone de jeu
+    // Reference to the game area
     const gameArea = document.querySelector('.game');
 
     document.addEventListener('keyup', event => {
@@ -148,29 +148,29 @@
         }
     });
 
-    // --- Contrôle Souris --- 
+    // --- Mouse Control ---
     if (gameArea) {
         gameArea.addEventListener('mousemove', (event) => {
-            // Ne contrôler à la souris que si le jeu est démarré
+            // Only control with mouse if the game is started
             if (!gameStarted) return;
 
-            // Calculer Y souris relatif au conteneur .game
+            // Calculate mouse Y relative to the .game container
             const rect = gameArea.getBoundingClientRect();
             const mouseY = event.clientY - rect.top;
 
-            // Calculer la position top désirée pour centrer la raquette sur la souris
+            // Calculate desired top position to center the racket on the mouse
             let desiredTop = mouseY - (RACKET_HEIGHT_PX / 2);
 
-            // Clamper la position dans les limites autorisées
+            // Clamp the position within allowed limits
             const clampedTop = Math.min(RACKET_MAX_Y, Math.max(RACKET_MIN_Y, desiredTop));
 
-            // Envoyer la position validée au backend
-            // Utiliser requestAnimationFrame pour limiter la fréquence des appels?
-            // Pour l'instant, appel direct pour max réactivité.
+            // Send the validated position to the backend
+            // Use requestAnimationFrame to limit call frequency?
+            // For now, direct call for max responsiveness.
             $wire.setRacketPosition(clampedTop);
         });
 
-        // Optionnel: Cacher la souris quand elle entre dans la zone de jeu
+        // Optional: Hide the mouse when it enters the game area
         // gameArea.style.cursor = 'none'; 
     }
 
@@ -190,12 +190,12 @@
     }
     requestAnimationFrame(gameLoop);
 
-    // --- Listener Livewire simplifié --- 
+    // --- Simplified Livewire Listener ---
     Livewire.on('racket-hit', () => {
-        // Dispatcher des événements que Alpine écoute
+        // Dispatch events that Alpine listens for
         window.dispatchEvent(new CustomEvent('trigger-ball-squash'));
         window.dispatchEvent(new CustomEvent('trigger-racket-flash'));
-        // Plus de manipulation directe du DOM ici
+        // No more direct DOM manipulation here
     });
 </script>
 @endscript

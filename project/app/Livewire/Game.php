@@ -2,8 +2,8 @@
 
 namespace App\Livewire;
 
-use App\Livewire\Score; // Importer Score
-use App\Livewire\Level; // Importer Level
+use App\Livewire\Score; // Import Score
+use App\Livewire\Level; // Import Level
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -16,35 +16,35 @@ class Game extends Component
     private const WALL_RIGHT_X = self::AREA_WIDTH + 55;
     private const WALL_BOTTOM_Y = self::AREA_HEIGHT - 30;
     private const WALL_TOP_Y = 10;
-    private const RACKET_COLLISION_X = 10; // Position X de la face avant de la raquette (pixels)
-    private const RACKET_SIDE_COLLISION_X = 0; // Position X du bord gauche
+    private const RACKET_COLLISION_X = 10; // Racket front face X position (pixels)
+    private const RACKET_SIDE_COLLISION_X = 0; // Left edge X position
     private const GAME_OVER_X = -self::BALL_SIZE_PX - 20;
     // Racket
-    private const RACKET_WIDTH_PX = 10; // Largeur visuelle (pixels)
-    private const RACKET_HEIGHT_PX = 80; // Hauteur visuelle (pixels) - Ajuster si besoin
-    private const RACKET_INITIAL_Y = (self::AREA_HEIGHT / 2) - (self::RACKET_HEIGHT_PX / 2); // Centré verticalement
-    private const RACKET_MOVE_STEP = 15; // Pixels par déplacement
-    private const RACKET_MOVE_STEP_FAST = 45; // Pixels par déplacement rapide
+    private const RACKET_WIDTH_PX = 10; // Visual width (pixels)
+    private const RACKET_HEIGHT_PX = 80; // Visual height (pixels) - Adjust if needed
+    private const RACKET_INITIAL_Y = (self::AREA_HEIGHT / 2) - (self::RACKET_HEIGHT_PX / 2); // Centered vertically
+    private const RACKET_MOVE_STEP = 15; // Pixels per movement
+    private const RACKET_MOVE_STEP_FAST = 45; // Pixels per fast movement
     private const RACKET_MIN_Y = self::WALL_TOP_Y;
-    private const RACKET_MAX_Y = self::WALL_BOTTOM_Y - self::RACKET_HEIGHT_PX + 25; // Limite basse
-    private const RACKET_Y_COLLISION_TOLERANCE = 5; // Pixels de tolérance en haut/bas
+    private const RACKET_MAX_Y = self::WALL_BOTTOM_Y - self::RACKET_HEIGHT_PX + 25; // Lower limit
+    private const RACKET_Y_COLLISION_TOLERANCE = 5; // Top/bottom tolerance in pixels
     // Ball
-    private const BALL_SIZE_PX = 15; // Diamètre (pixels) - Ajuster si besoin
+    private const BALL_SIZE_PX = 15; // Diameter (pixels) - Adjust if needed
     private const BALL_INITIAL_X = self::AREA_WIDTH / 2;
     private const BALL_INITIAL_Y = self::AREA_HEIGHT / 2;
-    private const BALL_INITIAL_SPEED = 6; // Vitesse initiale (pixels par tick) - Ajuster
+    private const BALL_INITIAL_SPEED = 8;
     private const BALL_INITIAL_DIR_X = 1;
     private const BALL_INITIAL_DIR_Y = 1;
-    private const BALL_SPEED_SQRT_FACTOR = 2; // Utiliser un facteur pour une courbe racine carrée
+    private const BALL_SPEED_SQRT_FACTOR = 2; // Use a factor for a square root curve
     // --- End Constants ---
 
     // --- Properties ---
     public bool $gameStarted = false;
     public bool $isGameOver = false;
-    public float $racketPosition = self::RACKET_INITIAL_Y; // Utiliser float pour position Y précise
+    public float $racketPosition = self::RACKET_INITIAL_Y; // Use float for precise Y position
     public array $ballPosition = ['x' => self::BALL_INITIAL_X, 'y' => self::BALL_INITIAL_Y];
     public array $ballDirection = ['x' => self::BALL_INITIAL_DIR_X, 'y' => self::BALL_INITIAL_DIR_Y];
-    public float $ballSpeed = self::BALL_INITIAL_SPEED; // Utiliser float pour vitesse précise
+    public float $ballSpeed = self::BALL_INITIAL_SPEED; // Use float for precise speed
 
     /**
      * Start or restart the game.
@@ -109,9 +109,9 @@ class Game extends Component
     #[On('increase-ball-speed')]
     public function increaseBallSpeed($level): void
     {
-        // S'assurer que le niveau est au moins 1 pour éviter sqrt(0) ou négatif
+        // Ensure level is at least 1 to avoid sqrt(0) or negative
         $effectiveLevel = max(1, $level);
-        // Nouvelle formule utilisant la racine carrée
+        // New formula using square root
         $this->ballSpeed = self::BALL_INITIAL_SPEED + (self::BALL_SPEED_SQRT_FACTOR * sqrt($effectiveLevel));
     }
 
@@ -155,26 +155,26 @@ class Game extends Component
     private function checkWallCollision(): bool
     {
         $collided = false;
-        // Right wall (Prendre en compte la TAILLE de la balle)
+        // Right wall (Consider ball SIZE)
         if ($this->ballPosition['x'] >= self::WALL_RIGHT_X - self::BALL_SIZE_PX && $this->ballDirection['x'] > 0) {
             $this->ballDirection['x'] *= -1;
             $this->dispatch('trigger-ball-squash');
-            // Snap le bord droit de la balle contre le mur
+            // Snap ball's right edge to the wall
             $this->ballPosition['x'] = self::WALL_RIGHT_X - self::BALL_SIZE_PX;
             $collided = true;
         }
-        // Top wall (Pas besoin de taille, position Y est déjà le haut)
+        // Top wall (No size needed, Y position is already the top)
         if ($this->ballPosition['y'] <= self::WALL_TOP_Y && $this->ballDirection['y'] < 0) {
             $this->ballDirection['y'] *= -1;
             $this->dispatch('trigger-ball-squash');
             $this->ballPosition['y'] = self::WALL_TOP_Y; // Snap
             $collided = true;
         }
-        // Bottom wall (Prendre en compte la TAILLE de la balle)
+        // Bottom wall (Consider ball SIZE)
         elseif ($this->ballPosition['y'] >= self::WALL_BOTTOM_Y - self::BALL_SIZE_PX && $this->ballDirection['y'] > 0) {
             $this->ballDirection['y'] *= -1;
             $this->dispatch('trigger-ball-squash');
-            // Snap le bord bas de la balle contre le mur
+            // Snap ball's bottom edge to the wall
             $this->ballPosition['y'] = self::WALL_BOTTOM_Y - self::BALL_SIZE_PX;
             $collided = true;
         }
@@ -192,20 +192,20 @@ class Game extends Component
         // Check direction & rough X position
         if ($this->ballDirection['x'] < 0 &&
             $this->ballPosition['x'] <= self::RACKET_COLLISION_X + self::RACKET_WIDTH_PX && // Collision zone X
-            $this->ballPosition['x'] > self::RACKET_SIDE_COLLISION_X ) { // Eviter conflit avec side collision
+            $this->ballPosition['x'] > self::RACKET_SIDE_COLLISION_X ) { // Avoid conflict with side collision
 
-            // Check Y position avec TOLÉRANCE
+            // Check Y position with TOLERANCE
             if ($this->ballPosition['y'] >= $this->racketPosition - self::RACKET_Y_COLLISION_TOLERANCE &&
                 $this->ballPosition['y'] <= $this->racketPosition + self::RACKET_HEIGHT_PX + self::RACKET_Y_COLLISION_TOLERANCE
             ) {
-                // Snap X à la face avant de la raquette
-                $this->ballPosition['x'] = self::RACKET_COLLISION_X; // + self::RACKET_WIDTH_PX ? Non, juste X.
+                // Snap X to the racket's front face
+                $this->ballPosition['x'] = self::RACKET_COLLISION_X; // + self::RACKET_WIDTH_PX ? No, just X.
 
-                // Logique de rebond simple (à améliorer)
+                // Simple bounce logic (to be improved)
                 $racketCenterY = $this->racketPosition + (self::RACKET_HEIGHT_PX / 2.0);
                 $impactFactor = ($this->ballPosition['y'] - $racketCenterY) / (self::RACKET_HEIGHT_PX / 2.0);
-                $this->ballDirection['y'] = $impactFactor * 1.5; // Angle basé sur point d'impact
-                $this->ballDirection['x'] *= -1; // Inverser X
+                $this->ballDirection['y'] = $impactFactor * 1.5; // Angle based on impact point
+                $this->ballDirection['x'] *= -1; // Reverse X
                 $this->dispatch('increase-score');
                 $this->dispatch('racket-hit');
                 return true;
@@ -224,12 +224,12 @@ class Game extends Component
     {
         // Check direction & rough X position
         if ($this->ballDirection['x'] < 0 && $this->ballPosition['x'] <= self::RACKET_SIDE_COLLISION_X) {
-            // Check Y position avec TOLÉRANCE
+            // Check Y position with TOLERANCE
             if ($this->ballPosition['y'] >= $this->racketPosition - self::RACKET_Y_COLLISION_TOLERANCE &&
                 $this->ballPosition['y'] <= $this->racketPosition + self::RACKET_HEIGHT_PX + self::RACKET_Y_COLLISION_TOLERANCE
             ) {
                 $this->ballPosition['x'] = self::RACKET_SIDE_COLLISION_X; // Snap X
-                // Rebond différent pour le côté?
+                // Different bounce for the side?
                 $this->ballDirection['x'] *= -1;
                 $this->ballDirection['y'] *= -1;
                 $this->dispatch('increase-score');

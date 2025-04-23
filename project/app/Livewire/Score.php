@@ -30,7 +30,7 @@ class Score extends Component
     }
 
     /**
-     * Listener pour l'événement 'show-final-score' venant de Game.
+     * Listener for the 'show-final-score' event from Game.
      */
     #[On('show-final-score')]
     public function handleFinalScore(): void
@@ -40,7 +40,7 @@ class Score extends Component
     }
 
     /**
-     * Listener pour l'événement 'reset-score-display' venant de Game.
+     * Listener for the 'reset-score-display' event from Game.
      */
     #[On('reset-score-display')]
     public function resetDisplay(): void
