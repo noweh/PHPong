@@ -26,7 +26,7 @@ class Game extends Component
     private const RACKET_MOVE_STEP = 15; // Pixels par déplacement
     private const RACKET_MOVE_STEP_FAST = 45; // Pixels par déplacement rapide
     private const RACKET_MIN_Y = self::WALL_TOP_Y;
-    private const RACKET_MAX_Y = self::WALL_BOTTOM_Y - self::RACKET_HEIGHT_PX + 35; // Limite basse
+    private const RACKET_MAX_Y = self::WALL_BOTTOM_Y - self::RACKET_HEIGHT_PX + 25; // Limite basse
     private const RACKET_Y_COLLISION_TOLERANCE = 5; // Pixels de tolérance en haut/bas
     // Ball
     private const BALL_SIZE_PX = 15; // Diamètre (pixels) - Ajuster si besoin
