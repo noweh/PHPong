@@ -2,59 +2,84 @@
     {{-- Ajout d'un style pour les transitions --}}
     <style>
         .racket {
-            /* Garder les styles existants (via CSS externe ou ici) */
-            /* Ajouter la transition pour la propriété 'top' */
-            transition: top 0.05s linear; /* Durée courte, animation linéaire */
+            transition: top 0.05s linear; /* RE-ACTIVÉ */
         }
         .ball {
-            /* Garder les styles existants */
-            /* Ajouter la transition pour 'left' et 'top' */
-            transition: left 0.05s linear, top 0.05s linear;
+            transition: left 0.05s linear, top 0.05s linear; /* RE-ACTIVÉ */
         }
-        /* Garder les styles des overlays etc. s'ils étaient ici, 
-           sinon s'assurer qu'ils sont dans le CSS externe */
         .game { position: relative; /* Important pour le positionnement absolu */ }
         .overlay, .overlay-game-over { position: absolute; /* ... autres styles overlay ... */ }
+
+        /* --- Animations "Juice" (Originales avec Alpine) --- */
+        .ball-squash {
+            animation: squash 0.2s ease-out; /* Utilise @keyframes squash */
+        }
+        .racket-flash {
+            animation: flash 0.2s linear;  /* Utilise @keyframes flash - Durée augmentée */
+        }
+
+        /* Keyframes originaux (modifiés pour plus d'impact) */
+        @keyframes squash {
+            0%, 100% { transform: scale(1, 1); }
+            50% { transform: scale(1.6, 0.4); } /* << PLUS EXAGÉRÉ */
+        }
+        @keyframes flash {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(2.5); } /* << PLUS LUMINEUX */
+        }
+        /* @keyframes simple-opacity { ... } */ /* Supprimé car inutile */
     </style>
 
-    {{-- Game area container (Doit avoir position:relative via CSS externe ou style ci-dessus) --}}
-    <div class="game">
-        {{-- Overlay initial --}}
-        @if (!$gameStarted && !$isGameOver)
-            <div class="overlay">
-                <p>Press Space to Play/Pause</p>
-            </div>
-        @endif
+    {{-- Conteneur principal avec Alpine --}}
+    <div 
+        x-data="{
+            isBallSquashing: false, 
+            isRacketFlashing: false
+        }"
+        @trigger-ball-squash.window="isBallSquashing = true; setTimeout(() => isBallSquashing = false, 500)"
+        @trigger-racket-flash.window="isRacketFlashing = true; setTimeout(() => isRacketFlashing = false, 500)"
+    >
+        {{-- Game area container (Doit avoir position:relative via CSS externe ou style ci-dessus) --}}
+        <div class="game">
+            {{-- Overlay initial --}}
+            @if (!$gameStarted && !$isGameOver)
+                <div class="overlay">
+                    <p>Press Space to Play/Pause</p>
+                </div>
+            @endif
 
-        {{-- Overlay GAME OVER --}}
-        @if ($isGameOver)
-            <div class="overlay-game-over">
-                <p>Press "R" to Retry</p>
-            </div>
-        @endif
+            {{-- Overlay GAME OVER --}}
+            @if ($isGameOver)
+                <div class="overlay-game-over">
+                    <p>Press "R" to Retry</p>
+                </div>
+            @endif
 
-        {{-- Racket (position top en pixels) --}}
-        @if (!$isGameOver)
-            <div
-                class="racket"
-                style="top: {{ $racketPosition }}px;"
-            >
-                {{-- Remettre les spans --}}
-                <span>||</span>
-                <span>||</span>
-                <span>||</span>
-            </div>
-        @endif
-        {{-- Ball (position left/top en pixels) --}}
-        @if ($gameStarted || !$isGameOver)
-            <div
-                class="ball"
-                style="left: {{ $ballPosition['x'] }}px; top: {{ $ballPosition['y'] }}px;"
-            >
-                {{-- Remettre le span --}}
-                <span>(&&)</span>
-            </div>
-        @endif
+            {{-- Racket (position top en pixels) --}}
+            @if (!$isGameOver)
+                <div
+                    class="racket"
+                    :class="{ 'racket-flash': isRacketFlashing }" {{-- Alpine gère la classe --}}
+                    style="top: {{ $racketPosition }}px;"
+                >
+                    {{-- Remettre les spans --}}
+                    <span>||</span>
+                    <span>||</span>
+                    <span>||</span>
+                </div>
+            @endif
+            {{-- Ball (position left/top en pixels) --}}
+            @if ($gameStarted || !$isGameOver)
+                <div
+                    class="ball"
+                    :class="{ 'ball-squash': isBallSquashing }" {{-- Alpine gère la classe --}}
+                    style="left: {{ $ballPosition['x'] }}px; top: {{ $ballPosition['y'] }}px;"
+                >
+                    {{-- Remettre le span --}}
+                    <span>(&&)</span>
+                </div>
+            @endif
+        </div>
     </div>
 </div>
 
@@ -164,5 +189,13 @@
         requestAnimationFrame(gameLoop);
     }
     requestAnimationFrame(gameLoop);
+
+    // --- Listener Livewire simplifié --- 
+    Livewire.on('racket-hit', () => {
+        // Dispatcher des événements que Alpine écoute
+        window.dispatchEvent(new CustomEvent('trigger-ball-squash'));
+        window.dispatchEvent(new CustomEvent('trigger-racket-flash'));
+        // Plus de manipulation directe du DOM ici
+    });
 </script>
 @endscript

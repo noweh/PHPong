@@ -158,6 +158,7 @@ class Game extends Component
         // Right wall (Prendre en compte la TAILLE de la balle)
         if ($this->ballPosition['x'] >= self::WALL_RIGHT_X - self::BALL_SIZE_PX && $this->ballDirection['x'] > 0) {
             $this->ballDirection['x'] *= -1;
+            $this->dispatch('trigger-ball-squash');
             // Snap le bord droit de la balle contre le mur
             $this->ballPosition['x'] = self::WALL_RIGHT_X - self::BALL_SIZE_PX;
             $collided = true;
@@ -165,12 +166,14 @@ class Game extends Component
         // Top wall (Pas besoin de taille, position Y est déjà le haut)
         if ($this->ballPosition['y'] <= self::WALL_TOP_Y && $this->ballDirection['y'] < 0) {
             $this->ballDirection['y'] *= -1;
+            $this->dispatch('trigger-ball-squash');
             $this->ballPosition['y'] = self::WALL_TOP_Y; // Snap
             $collided = true;
         }
         // Bottom wall (Prendre en compte la TAILLE de la balle)
         elseif ($this->ballPosition['y'] >= self::WALL_BOTTOM_Y - self::BALL_SIZE_PX && $this->ballDirection['y'] > 0) {
             $this->ballDirection['y'] *= -1;
+            $this->dispatch('trigger-ball-squash');
             // Snap le bord bas de la balle contre le mur
             $this->ballPosition['y'] = self::WALL_BOTTOM_Y - self::BALL_SIZE_PX;
             $collided = true;
@@ -204,6 +207,7 @@ class Game extends Component
                 $this->ballDirection['y'] = $impactFactor * 1.5; // Angle basé sur point d'impact
                 $this->ballDirection['x'] *= -1; // Inverser X
                 $this->dispatch('increase-score');
+                $this->dispatch('racket-hit');
                 return true;
             }
         }
@@ -229,6 +233,7 @@ class Game extends Component
                 $this->ballDirection['x'] *= -1;
                 $this->ballDirection['y'] *= -1;
                 $this->dispatch('increase-score');
+                $this->dispatch('racket-hit');
                 return true;
             }
         }
